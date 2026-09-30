@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceGuide — Study Assistant</title>
+    <style>
+        :root {
+            --bg: #07130f;
+            --panel: rgba(13, 31, 24, 0.82);
+            --panel-strong: #0e2119;
+            --line: rgba(154, 255, 199, 0.14);
+            --text: #effff5;
+            --muted: #9ab8aa;
+            --accent: #71f2ae;
+            --accent-2: #b6ffcf;
+            --user: #153d2b;
+            --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 10% 15%, rgba(71, 255, 161, 0.13), transparent 28%),
+                radial-gradient(circle at 90% 85%, rgba(46, 190, 118, 0.10), transparent 28%),
+                var(--bg);
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.18;
+            background-image:
+                linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+            background-size: 38px 38px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        .shell {
+            width: min(1180px, 94vw);
+            height: min(900px, 94vh);
+            margin: 3vh auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(24px);
+        }
+
+        aside {
+            padding: 28px;
+            border-right: 1px solid var(--line);
+            background: rgba(4, 16, 11, 0.42);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 34px;
+        }
+
+        .logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            color: #062113;
+            background: linear-gradient(135deg, var(--accent), #d9ffe7);
+            font-weight: 900;
+            font-size: 21px;
+            box-shadow: 0 10px 30px rgba(113, 242, 174, .18);
+        }
+
+        .brand strong { display: block; font-size: 17px; }
+        .brand span { color: var(--muted); font-size: 12px; }
+
+        .eyebrow {
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            margin-bottom: 9px;
+        }
+
+        aside h1 {
+            font-size: 28px;
+            line-height: 1.05;
+            margin: 0 0 12px;
+            letter-spacing: -.04em;
+        }
+
+        aside p {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .topics {
+            display: grid;
+            gap: 9px;
+            margin-top: 25px;
+        }
+
+        .topic {
+            padding: 12px 13px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            color: #cce8d8;
+            background: rgba(255,255,255,.025);
+            font-size: 12px;
+        }
+
+        .topic b { color: var(--accent); margin-right: 6px; }
+
+        .disclaimer {
+            margin-top: auto;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+        main {
+            min-width: 0;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        header {
+            padding: 22px 25px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 14px var(--accent);
+        }
+
+        #messages {
+            overflow-y: auto;
+            padding: 28px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            margin: 0 auto 20px;
+            max-width: 780px;
+        }
+
+        .message.user { justify-content: flex-end; }
+
+        .bubble {
+            max-width: min(78%, 650px);
+            padding: 14px 17px;
+            border-radius: 19px;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.035);
+        }
+
+        .user .bubble {
+            background: var(--user);
+            border-color: rgba(113, 242, 174, .18);
+            border-bottom-right-radius: 6px;
+        }
+
+        .assistant .bubble {
+            border-bottom-left-radius: 6px;
+        }
+
+        .welcome {
+            max-width: 650px;
+            margin: 7vh auto 0;
+            text-align: center;
+        }
+
+        .welcome .orb {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 18px;
+            display: grid;
+            place-items: center;
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(113,242,174,.16), rgba(113,242,174,.04));
+            border: 1px solid var(--line);
+            font-size: 30px;
+        }
+
+        .welcome h2 {
+            margin: 0 0 9px;
+            font-size: 25px;
+            letter-spacing: -.035em;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            margin: 0 auto;
+            max-width: 520px;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .suggestion {
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.025);
+            color: #cdebd9;
+            padding: 9px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 11px;
+        }
+
+        .suggestion:hover {
+            border-color: rgba(113,242,174,.4);
+            color: var(--accent-2);
+        }
+
+        form {
+            margin: 0 25px 24px;
+            padding: 8px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: var(--panel-strong);
+        }
+
+        textarea {
+            flex: 1;
+            resize: none;
+            max-height: 130px;
+            min-height: 46px;
+            padding: 13px 13px 10px;
+            border: 0;
+            outline: 0;
+            color: var(--text);
+            background: transparent;
+            font: inherit;
+            font-size: 13px;
+        }
+
+        textarea::placeholder { color: #6e897c; }
+
+        button[type="submit"] {
+            width: 44px;
+            height: 44px;
+            border: 0;
+            border-radius: 14px;
+            cursor: pointer;
+            color: #052013;
+            background: var(--accent);
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        button[type="submit"]:disabled {
+            cursor: wait;
+            opacity: .5;
+        }
+
+        @media (max-width: 800px) {
+            body { overflow: auto; }
+            .shell {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                grid-template-columns: 1fr;
+            }
+            aside { display: none; }
+            #messages { padding: 20px 15px; }
+            form { margin: 0 14px 14px; }
+            .bubble { max-width: 88%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <aside>
+            <div class="brand">
+                <div class="logo">F</div>
+                <div>
+                    <strong>FinanceGuide</strong>
+                    <span>Study assistant</span>
+                </div>
+            </div>
+
+            <div class="eyebrow">Learn smarter</div>
+            <h1>Finance, made clearer.</h1>
+            <p>Ask academic questions, work through formulas, or explore finance concepts step by step.</p>
+
+            <div class="topics">
+                <div class="topic"><b>01</b> Financial concepts</div>
+                <div class="topic"><b>02</b> Accounting & economics</div>
+                <div class="topic"><b>03</b> Calculations & formulas</div>
+                <div class="topic"><b>04</b> Exam revision</div>
+            </div>
+
+            <div class="disclaimer">
+                FinanceGuide is for educational purposes. It does not provide personalized financial advice or guarantee financial outcomes.
+            </div>
+        </aside>
+
+        <main>
+            <header>
+                <div>
+                    <strong>FinanceGuide</strong>
+                </div>
+                <div class="status"><span class="dot"></span> Gemini study mode</div>
+            </header>
+
+            <section id="messages">
+                <div class="welcome" id="welcome">
+                    <div class="orb">₣</div>
+                    <h2>What would you like to learn?</h2>
+                    <p>Ask me about finance, accounting, economics, financial mathematics, or another study-related topic.</p>
+                    <div class="suggestions">
+                        <button class="suggestion" type="button">Explain compound interest</button>
+                        <button class="suggestion" type="button">What is a bond?</button>
+                        <button class="suggestion" type="button">Help me understand inflation</button>
+                    </div>
+                </div>
+            </section>
+
+            <form id="chat-form">
+                <textarea id="message-input" rows="1" placeholder="Ask a finance study question..." autocomplete="off"></textarea>
+                <button type="submit" aria-label="Send">↑</button>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        const form = document.getElementById("chat-form");
+        const input = document.getElementById("message-input");
+        const messages = document.getElementById("messages");
+        const submit = form.querySelector("button[type='submit']");
+        const welcome = document.getElementById("welcome");
+
+        function addMessage(text, role) {
+            if (welcome) welcome.remove();
+
+            const wrapper = document.createElement("div");
+            wrapper.className = `message ${role}`;
+
+            const bubble = document.createElement("div");
+            bubble.className = "bubble";
+            bubble.textContent = text;
+
+            wrapper.appendChild(bubble);
+            messages.appendChild(wrapper);
+            messages.scrollTop = messages.scrollHeight;
+            return bubble;
+        }
+
+        function setLoading(loading) {
+            submit.disabled = loading;
+            input.disabled = loading;
+            submit.textContent = loading ? "…" : "↑";
+        }
+
+        document.querySelectorAll(".suggestion").forEach(button => {
+            button.addEventListener("click", () => {
+                input.value = button.textContent;
+                input.focus();
+            });
+        });
+
+        input.addEventListener("input", () => {
+            input.style.height = "auto";
+            input.style.height = Math.min(input.scrollHeight, 130) + "px";
+        });
+
+        input.addEventListener("keydown", event => {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                form.requestSubmit();
+            }
+        });
+
+        form.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const message = input.value.trim();
+            if (!message || submit.disabled) return;
+
+            addMessage(message, "user");
+            input.value = "";
+            input.style.height = "auto";
+            setLoading(true);
+
+            const thinking = addMessage("Thinking…", "assistant");
+
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Request failed.");
+                }
+
+                thinking.textContent = data.answer;
+            } catch (error) {
+                thinking.textContent = error.message || "Something went wrong. Please try again.";
+            } finally {
+                setLoading(false);
+                input.focus();
+            }
+        });
+    </script>
+</body>
+</html>
